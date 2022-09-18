@@ -10,6 +10,7 @@ import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 
 import java.util.Collection;
 
+import static com.example.gas.station.Transaction.Status.CANCELLED_NO_GAS;
 import static com.example.gas.station.Transaction.Status.CANCELLED_TOO_EXPENSIVE;
 
 public class GasStationGateway implements GasStation {
@@ -46,6 +47,7 @@ public class GasStationGateway implements GasStation {
             throw new RuntimeException("pump type not available! " + type);
         }
         if (pump.getRemainingAmount() < amountInLiters) {
+            transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
             throw new NotEnoughGasException();
         }
         return 0;
@@ -63,7 +65,7 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public int getNumberOfCancellationsNoGas() {
-        return 0;
+        return transactionRepository.calculateNumberOfCancellationsNoGas();
     }
 
     @Override

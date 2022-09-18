@@ -30,4 +30,19 @@ public class ReportingTest {
         int numberOfCancellationsTooExpensive = gasStationGateway.getNumberOfCancellationsTooExpensive();
         Assertions.assertThat(numberOfCancellationsTooExpensive).isEqualTo(1);
     }
+
+    @Test
+    public void calculate_number_of_cancellations_no_gas() {
+        gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, INITIAL_GAS_CAPACITY));
+        gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
+
+        try {
+            int bigQuantityOfGas = 100;
+            gasStationGateway.buyGas(GasType.DIESEL, bigQuantityOfGas, 5);
+        } catch (Exception e) {
+        }
+
+        int numberOfCancellationsTooExpensive = gasStationGateway.getNumberOfCancellationsNoGas();
+        Assertions.assertThat(numberOfCancellationsTooExpensive).isEqualTo(1);
+    }
 }
