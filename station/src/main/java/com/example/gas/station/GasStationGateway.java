@@ -31,7 +31,18 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
-        throw new GasTooExpensiveException();
+        double gasPrice = pricingRepository.findBy(type);
+        if (gasPrice > maxPricePerLiter) {
+            throw new GasTooExpensiveException();
+        }
+        GasPump pump = pumpRepository.findByType(type);
+        if (pump == null) {
+            throw new RuntimeException("pump type not available! " + type);
+        }
+        if (pump.getRemainingAmount() < amountInLiters) {
+            throw new NotEnoughGasException();
+        }
+        return 0;
     }
 
     @Override

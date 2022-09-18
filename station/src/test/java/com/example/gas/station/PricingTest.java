@@ -2,6 +2,7 @@ package com.example.gas.station;
 
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
+import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ public class PricingTest {
     }
 
     @Test
-    public void should_not_by_gas_when_client_price_under_gas_type_price() {
+    public void should_not_buy_gas_when_client_price_under_gas_type_price() {
         gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
 
         org.junit.jupiter.api.Assertions.assertThrows(
