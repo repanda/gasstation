@@ -31,7 +31,7 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
-        return 0;
+        throw new GasTooExpensiveException();
     }
 
     @Override
