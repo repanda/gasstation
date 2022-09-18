@@ -10,14 +10,18 @@ import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 
 import java.util.Collection;
 
+import static com.example.gas.station.Transaction.Status.CANCELLED_TOO_EXPENSIVE;
+
 public class GasStationGateway implements GasStation {
 
     private final PumpRepository pumpRepository;
     private final PricingRepository pricingRepository;
+    private final TransactionRepository transactionRepository;
 
     public GasStationGateway() {
         pumpRepository = new PumpRepository();
         pricingRepository = new PricingRepository();
+        transactionRepository = new TransactionRepository();
     }
 
     @Override
@@ -34,6 +38,7 @@ public class GasStationGateway implements GasStation {
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
         double gasPrice = pricingRepository.findBy(type);
         if (gasPrice > maxPricePerLiter) {
+            transactionRepository.add(new Transaction(CANCELLED_TOO_EXPENSIVE));
             throw new GasTooExpensiveException();
         }
         GasPump pump = pumpRepository.findByType(type);
@@ -63,7 +68,7 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public int getNumberOfCancellationsTooExpensive() {
-        return 0;
+        return transactionRepository.calculateNumberOfCancellationsTooExpensive();
     }
 
     @Override
