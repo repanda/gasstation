@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'net.bigpoint.assessment'
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 10
+targetCompatibility = 10
+
+
+
+repositories {
+     maven { url "https://repo1.maven.org/maven2/" }
+}
