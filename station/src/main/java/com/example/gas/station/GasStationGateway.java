@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class GasStationGateway implements GasStation {
 
-    final PumpRepository pumpRepository;
+    private final PumpRepository pumpRepository;
     private final PricingRepository pricingRepository;
 
     public GasStationGateway() {
