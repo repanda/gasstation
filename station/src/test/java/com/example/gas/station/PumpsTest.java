@@ -9,15 +9,15 @@ import java.util.Collection;
 
 public class PumpsTest {
 
+    final GasStationGateway gasStationGateway = new GasStationGateway();
 
     @Test
     public void listAllGasPumps() {
-        GasStationGateway gasStationGateway = new GasStationGateway();
-
         GasPump pump = new GasPump(GasType.DIESEL, 2.2);
         gasStationGateway.addGasPump(pump);
 
         Collection<GasPump> pumps = gasStationGateway.getGasPumps();
+
         Assertions.assertThat(pumps).hasSize(1);
     }
 }
