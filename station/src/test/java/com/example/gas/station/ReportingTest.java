@@ -42,7 +42,7 @@ public class ReportingTest {
         } catch (Exception e) {
         }
 
-        int numberOfCancellationsTooExpensive = gasStationGateway.getNumberOfCancellationsNoGas();
-        Assertions.assertThat(numberOfCancellationsTooExpensive).isEqualTo(1);
+        int numberOfCancellationsNoGas = gasStationGateway.getNumberOfCancellationsNoGas();
+        Assertions.assertThat(numberOfCancellationsNoGas).isEqualTo(1);
     }
 }

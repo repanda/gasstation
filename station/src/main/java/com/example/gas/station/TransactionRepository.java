@@ -15,16 +15,17 @@ public class TransactionRepository {
     }
 
     public int calculateNumberOfCancellationsTooExpensive() {
-        return (int) transactions.values()
-                .stream()
-                .filter(transaction -> CANCELLED_TOO_EXPENSIVE.equals(transaction.status()))
-                .count();
+        return countByStatus(CANCELLED_TOO_EXPENSIVE);
     }
 
     public int calculateNumberOfCancellationsNoGas() {
+        return countByStatus(CANCELLED_NO_GAS);
+    }
+
+    private int countByStatus(Transaction.Status status) {
         return (int) transactions.values()
                 .stream()
-                .filter(transaction -> CANCELLED_NO_GAS.equals(transaction.status()))
+                .filter(transaction -> status.equals(transaction.status()))
                 .count();
     }
 }
