@@ -1,4 +1,4 @@
-package com.example.gas.station;
+package com.example.gas.station.pricing;
 
 import com.example.gas.station.pricing.Pricing;
 import net.bigpoint.assessment.gasstation.GasType;

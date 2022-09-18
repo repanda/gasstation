@@ -1,6 +1,7 @@
 package com.example.gas.station;
 
 import com.example.gas.station.pricing.Pricing;
+import com.example.gas.station.pricing.PricingRepository;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;

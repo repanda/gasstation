@@ -2,7 +2,6 @@ package com.example.gas.station;
 
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
-import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
