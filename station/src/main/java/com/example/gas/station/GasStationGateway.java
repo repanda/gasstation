@@ -1,5 +1,6 @@
 package com.example.gas.station;
 
+import com.example.gas.station.pricing.Pricing;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
@@ -11,9 +12,11 @@ import java.util.Collection;
 public class GasStationGateway implements GasStation {
 
     final PumpRepository pumpRepository;
+    private final PricingRepository pricingRepository;
 
     public GasStationGateway() {
         pumpRepository = new PumpRepository();
+        pricingRepository = new PricingRepository();
     }
 
     @Override
@@ -53,11 +56,11 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public double getPrice(GasType type) {
-        return 0;
+        return pricingRepository.findBy(type);
     }
 
     @Override
     public void setPrice(GasType type, double price) {
-
+        pricingRepository.addOrUpdate(new Pricing(type, price));
     }
 }
