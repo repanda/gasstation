@@ -3,14 +3,17 @@ package com.example.gas.station;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 import static com.example.gas.station.PricingTest.DIESEL_PRICE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PumpsTest {
+    Logger logger = LoggerFactory.getLogger(PumpsTest.class);
 
     public static final int INITIAL_GAS_CAPACITY = 30;
     final GasStationGateway gasStationGateway = new GasStationGateway();
@@ -22,7 +25,7 @@ public class PumpsTest {
 
         Collection<GasPump> pumps = gasStationGateway.getGasPumps();
 
-        Assertions.assertThat(pumps).hasSize(1);
+        assertThat(pumps).hasSize(1);
     }
 
     @Test
@@ -34,5 +37,21 @@ public class PumpsTest {
                 NotEnoughGasException.class,
                 () -> gasStationGateway.buyGas(GasType.DIESEL, 31, 2.2)
         );
+    }
+
+    @Test
+    public void acceptanceTest() {
+        gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, 70));
+        gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
+
+        new SimulateMultiConsumersRequest(gasStationGateway);
+
+        GasPump gasPump = gasStationGateway.getGasPumps().stream().findFirst().get();
+
+        assertThat(gasPump.getRemainingAmount())
+                .isEqualTo(10);
+
+        assertThat(gasStationGateway.getNumberOfSales()).isEqualTo(3);
+        assertThat(gasStationGateway.getNumberOfCancellationsNoGas()).isEqualTo(1);
     }
 }
