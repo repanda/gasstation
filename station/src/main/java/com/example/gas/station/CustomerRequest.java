@@ -1,4 +1,6 @@
 package com.example.gas.station;
 
-public record CustomerRequest(double amountInLiters, double gasPrice) {
+import net.bigpoint.assessment.gasstation.GasType;
+
+public record CustomerRequest(GasType gasType, double amountInLiters, double gasPrice) {
 }

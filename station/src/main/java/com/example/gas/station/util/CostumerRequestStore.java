@@ -11,7 +11,9 @@ public class CostumerRequestStore {
 
     private Logger logger = LoggerFactory.getLogger(CostumerRequestStore.class);
 
-    private ConcurrentLinkedQueue<CustomerRequest> pendingRequests = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedQueue<CustomerRequest> dieselPendingRequests = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedQueue<CustomerRequest> superPendingRequests = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedQueue<CustomerRequest> regularPendingRequests = new ConcurrentLinkedQueue();
 
     private final PumpService pumpService;
 
@@ -22,10 +24,10 @@ public class CostumerRequestStore {
 
 
     private void initThread() {
-        Thread dispatcher = new Thread(() -> {
+        Thread dispatcherDiesel = new Thread(() -> {
             while (true) {
                 try {
-                    CustomerRequest request = pendingRequests.poll();
+                    CustomerRequest request = dieselPendingRequests.poll();
                     if (request != null) {
                         pumpService.applyCostumerTransaction(request);
                     }
@@ -35,17 +37,39 @@ public class CostumerRequestStore {
                 }
             }
         });
-        dispatcher.setName("Dispatcher");
-        dispatcher.start();
+
+        Thread dispatcherSuper = new Thread(() -> {
+            while (true) {
+                try {
+                    CustomerRequest request = superPendingRequests.poll();
+                    if (request != null) {
+                        pumpService.applyCostumerTransaction(request);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        dispatcherDiesel.setName("dispatcherDiesel");
+        dispatcherDiesel.start();
+        dispatcherSuper.setName("dispatcherSuper");
+        dispatcherSuper.start();
     }
 
 
-    // this method queues a message delivery request
+    // this method queues a costumer request
     public void publishRequest(CustomerRequest request) {
         try {
-            pendingRequests.add(request);
+            switch (request.gasType()) {
+                case DIESEL -> dieselPendingRequests.add(request);
+                case SUPER -> superPendingRequests.add(request);
+                case REGULAR -> regularPendingRequests.add(request);
+            }
         } catch (Exception e) {
             throw e;
         }
     }
 }
+

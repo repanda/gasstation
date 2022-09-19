@@ -36,13 +36,14 @@ public class PumpService {
             throw new NotEnoughGasException();
         }
 
-        return new CustomerRequest(amountInLiters, gasPrice);
+        return new CustomerRequest(type, amountInLiters, gasPrice);
     }
 
     public void applyCostumerTransaction(CustomerRequest request) {
         logger.info("request = " + request);
 
-        Pump pump = pumpRepository.findByType(GasType.DIESEL);
+        GasType gasType = request.gasType();
+        Pump pump = pumpRepository.findByType(gasType);
         double remainingAmount = pump.getGasPump().getRemainingAmount();
         logger.info("remaining gas amount before pumping:" + remainingAmount);
         if (remainingAmount < request.amountInLiters()) {

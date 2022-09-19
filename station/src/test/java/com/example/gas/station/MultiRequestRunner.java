@@ -27,7 +27,7 @@ public class MultiRequestRunner {
         }
         logger.info("All threads are completed");
         try {
-            Thread dispatcher = getThreadByName("Dispatcher"); // wait for event dispatcher thread to complete
+            Thread dispatcher = getThreadByName("dispatcher"); // wait for event dispatcher thread to complete
             dispatcher.join(10000);
             logger.info("Dispatcher thread is completed");
         } catch (Exception err) {
@@ -37,7 +37,7 @@ public class MultiRequestRunner {
     }
     public Thread getThreadByName(String threadName) {
         for (Thread t : Thread.getAllStackTraces().keySet()) {
-            if (t.getName().equals(threadName)) return t;
+            if (t.getName().startsWith(threadName)) return t;
         }
         return null;
     }

@@ -13,6 +13,9 @@ import static com.example.gas.station.PricingTest.DIESEL_PRICE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PumpsTest {
+    private static final double SUPER_PRICE = 2;
+    private static final double REGULAR_PRICE = 2;
+
     Logger logger = LoggerFactory.getLogger(PumpsTest.class);
 
     public static final int INITIAL_GAS_CAPACITY = 30;
@@ -43,19 +46,23 @@ public class PumpsTest {
     public void simulateMultiCostumerBuyingGasAtTheSameTime() {
         gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, 70));
         gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
+        gasStationGateway.addGasPump(new GasPump(GasType.SUPER, 20));
+        gasStationGateway.setPrice(GasType.SUPER, SUPER_PRICE);
+        gasStationGateway.addGasPump(new GasPump(GasType.REGULAR, 40));
+        gasStationGateway.setPrice(GasType.REGULAR, REGULAR_PRICE);
 
         new MultiRequestRunner().run(
                 () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
                 () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
                 () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
-                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5));
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
 
-        GasPump gasPump = gasStationGateway.getGasPumps().stream().findFirst().get();
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5)
+        );
 
-        assertThat(gasPump.getRemainingAmount())
-                .isEqualTo(10);
-
-        assertThat(gasStationGateway.getNumberOfSales()).isEqualTo(3);
-        assertThat(gasStationGateway.getNumberOfCancellationsNoGas()).isEqualTo(1);
+        assertThat(gasStationGateway.getNumberOfSales()).isEqualTo(5);
+        assertThat(gasStationGateway.getNumberOfCancellationsNoGas()).isEqualTo(2);
     }
 }
