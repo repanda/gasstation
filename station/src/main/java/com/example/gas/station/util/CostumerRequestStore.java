@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CostumerRequestStore {
 
@@ -24,33 +26,13 @@ public class CostumerRequestStore {
 
 
     private void initThread() {
-        Thread dispatcherDiesel = new Thread(() -> {
-            while (true) {
-                try {
-                    CustomerRequest request = dieselPendingRequests.poll();
-                    if (request != null) {
-                        pumpService.applyCostumerTransaction(request);
-                    }
+        Thread dispatcherDiesel = new Thread(
+                new GasDispatcher(this.dieselPendingRequests, (request) -> pumpService.applyCostumerTransaction(request))
+        );
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        Thread dispatcherSuper = new Thread(() -> {
-            while (true) {
-                try {
-                    CustomerRequest request = superPendingRequests.poll();
-                    if (request != null) {
-                        pumpService.applyCostumerTransaction(request);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        Thread dispatcherSuper = new Thread(
+                new GasDispatcher(this.superPendingRequests, (request) -> pumpService.applyCostumerTransaction(request))
+        );
 
         dispatcherDiesel.setName("dispatcherDiesel");
         dispatcherDiesel.start();
@@ -73,3 +55,29 @@ public class CostumerRequestStore {
     }
 }
 
+// the consumer removes strings from the queue
+class GasDispatcher implements Runnable {
+
+    ConcurrentLinkedQueue<CustomerRequest> queue;
+
+    Consumer<CustomerRequest> action;
+
+    GasDispatcher(ConcurrentLinkedQueue<CustomerRequest> queue, Consumer<CustomerRequest> action) {
+        this.queue = queue;
+        this.action = action;
+    }
+
+    public void run() {
+        while (true) {
+            try {
+                CustomerRequest request = queue.poll();
+                if (request != null) {
+                    action.accept(request);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
