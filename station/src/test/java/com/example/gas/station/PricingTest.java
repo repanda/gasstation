@@ -1,10 +1,13 @@
 package com.example.gas.station;
 
+import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.example.gas.station.PumpsTest.INITIAL_GAS_CAPACITY;
 
 public class PricingTest {
 
@@ -28,6 +31,17 @@ public class PricingTest {
                 GasTooExpensiveException.class,
                 () -> gasStationGateway.buyGas(GasType.DIESEL, 10, 2)
         );
+    }
+
+    @Test
+    public void calculate_price_the_customer_has_to_pay() throws GasTooExpensiveException, NotEnoughGasException {
+        gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, INITIAL_GAS_CAPACITY));
+        gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
+
+        double priceToPay = gasStationGateway.buyGas(GasType.DIESEL, 20, 5);
+
+        Assertions.assertThat(priceToPay).
+                isEqualTo(100);
     }
 
 

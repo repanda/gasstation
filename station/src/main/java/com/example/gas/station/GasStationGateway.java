@@ -51,7 +51,7 @@ public class GasStationGateway implements GasStation {
         }
 
         transactionRepository.add(new Transaction(SUCCESSFUL));
-        return 0;
+        return amountInLiters * maxPricePerLiter;
     }
 
     @Override
