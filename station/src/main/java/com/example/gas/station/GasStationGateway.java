@@ -10,8 +10,6 @@ import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 
 import java.util.Collection;
 
-import static com.example.gas.station.Transaction.Status.*;
-
 public class GasStationGateway implements GasStation {
 
     private final PumpRepository pumpRepository;
@@ -37,21 +35,9 @@ public class GasStationGateway implements GasStation {
     @Override
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
         double gasPrice = pricingRepository.findBy(type);
-        if (gasPrice > maxPricePerLiter) {
-            transactionRepository.add(new Transaction(CANCELLED_TOO_EXPENSIVE));
-            throw new GasTooExpensiveException();
-        }
         GasPump pump = pumpRepository.findByType(type);
-        if (pump == null) {
-            throw new RuntimeException("pump type not available! " + type);
-        }
-        if (pump.getRemainingAmount() < amountInLiters) {
-            transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
-            throw new NotEnoughGasException();
-        }
-
-        transactionRepository.add(new Transaction(SUCCESSFUL));
-        return amountInLiters * maxPricePerLiter;
+        return new PumpAggregate(transactionRepository)
+                .bugGas(pump, type, amountInLiters, maxPricePerLiter, gasPrice);
     }
 
     @Override
