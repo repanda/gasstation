@@ -23,8 +23,8 @@ public class GasStationGateway implements GasStation {
     }
 
     @Override
-    public void addGasPump(GasPump pump) {
-        pumpRepository.add(pump);
+    public void addGasPump(GasPump gasPump) {
+        pumpRepository.add(new Pump(gasPump));
     }
 
     @Override
@@ -35,9 +35,8 @@ public class GasStationGateway implements GasStation {
     @Override
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
         double gasPrice = pricingRepository.findBy(type);
-        GasPump pump = pumpRepository.findByType(type);
-        return new PumpAggregate(transactionRepository)
-                .bugGas(pump, type, amountInLiters, maxPricePerLiter, gasPrice);
+        return new PumpAggregate(transactionRepository, pumpRepository)
+                .buyGas(type, amountInLiters, maxPricePerLiter, gasPrice);
     }
 
     @Override
