@@ -1,3 +1,15 @@
+# Requirements
+- Maven 3 (using mvn 3.10.1 version)
+- Java 17 (using jdk-17.0.1)
+
+# Build
+mvn clean install
+
+# Run
+The precedent command will lunch the tests, also you can run tests using 'mvn test' or in your favorite IDE 
+
+
+# Multithreading
 The idea would be only a single thread owning all writes
 to a single resource with other threads reading the results. 
 
