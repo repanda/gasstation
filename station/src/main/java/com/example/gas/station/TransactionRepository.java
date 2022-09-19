@@ -4,8 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.example.gas.station.Transaction.Status.CANCELLED_NO_GAS;
-import static com.example.gas.station.Transaction.Status.CANCELLED_TOO_EXPENSIVE;
+import static com.example.gas.station.Transaction.Status.*;
 
 public class TransactionRepository {
     private ConcurrentMap<String, Transaction> transactions = new ConcurrentHashMap();
@@ -20,6 +19,10 @@ public class TransactionRepository {
 
     public int calculateNumberOfCancellationsNoGas() {
         return countByStatus(CANCELLED_NO_GAS);
+    }
+
+    public int calculateNumberOfSales() {
+        return countByStatus(SUCCESSFUL);
     }
 
     private int countByStatus(Transaction.Status status) {

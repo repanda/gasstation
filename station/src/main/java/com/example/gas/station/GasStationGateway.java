@@ -10,8 +10,7 @@ import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
 
 import java.util.Collection;
 
-import static com.example.gas.station.Transaction.Status.CANCELLED_NO_GAS;
-import static com.example.gas.station.Transaction.Status.CANCELLED_TOO_EXPENSIVE;
+import static com.example.gas.station.Transaction.Status.*;
 
 public class GasStationGateway implements GasStation {
 
@@ -50,6 +49,8 @@ public class GasStationGateway implements GasStation {
             transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
             throw new NotEnoughGasException();
         }
+
+        transactionRepository.add(new Transaction(SUCCESSFUL));
         return 0;
     }
 
@@ -60,7 +61,7 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public int getNumberOfSales() {
-        return 0;
+        return transactionRepository.calculateNumberOfSales();
     }
 
     @Override
