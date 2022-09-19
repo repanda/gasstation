@@ -4,11 +4,12 @@ import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static com.example.gas.station.PricingTest.DIESEL_PRICE;
 import static com.example.gas.station.PumpsTest.INITIAL_GAS_CAPACITY;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportingTest {
 
@@ -30,7 +31,7 @@ public class ReportingTest {
         }
 
         int numberOfCancellationsTooExpensive = gasStationGateway.getNumberOfCancellationsTooExpensive();
-        Assertions.assertThat(numberOfCancellationsTooExpensive).isEqualTo(1);
+        assertThat(numberOfCancellationsTooExpensive).isEqualTo(1);
     }
 
     @Test
@@ -45,7 +46,7 @@ public class ReportingTest {
         }
 
         int numberOfCancellationsNoGas = gasStationGateway.getNumberOfCancellationsNoGas();
-        Assertions.assertThat(numberOfCancellationsNoGas).isEqualTo(1);
+        assertThat(numberOfCancellationsNoGas).isEqualTo(1);
     }
 
     @Test
@@ -53,15 +54,13 @@ public class ReportingTest {
         gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, INITIAL_GAS_CAPACITY));
         gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
 
-        try {
-            int bigQuantityOfGas = 100;
-            gasStationGateway.buyGas(GasType.DIESEL, bigQuantityOfGas, 5);
-        } catch (Exception e) {
-        }
+        // try to buy more than gas in pump
+        assertThatThrownBy(() -> gasStationGateway.buyGas(GasType.DIESEL, 100, 5))
+                .isInstanceOf(NotEnoughGasException.class);
 
-        gasStationGateway.buyGas(GasType.DIESEL, 20, 5);
+        new MultiRequestRunner().run(() -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5));
 
         int numberOfSuccessfulSales = gasStationGateway.getNumberOfSales();
-        Assertions.assertThat(numberOfSuccessfulSales).isEqualTo(1);
+        assertThat(numberOfSuccessfulSales).isEqualTo(1);
     }
 }

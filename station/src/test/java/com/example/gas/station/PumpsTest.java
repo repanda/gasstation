@@ -40,11 +40,15 @@ public class PumpsTest {
     }
 
     @Test
-    public void acceptanceTest() {
+    public void simulateMultiCostumerBuyingGasAtTheSameTime() {
         gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, 70));
         gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
 
-        new SimulateMultiConsumersRequest(gasStationGateway);
+        new MultiRequestRunner().run(
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5));
 
         GasPump gasPump = gasStationGateway.getGasPumps().stream().findFirst().get();
 

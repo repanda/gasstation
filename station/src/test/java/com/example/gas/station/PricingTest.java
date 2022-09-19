@@ -40,8 +40,9 @@ public class PricingTest {
 
         double priceToPay = gasStationGateway.buyGas(GasType.DIESEL, 20, 5);
 
+        int expectedAmountToPay = 44;
         Assertions.assertThat(priceToPay).
-                isEqualTo(100);
+                isEqualTo(expectedAmountToPay);
     }
 
 

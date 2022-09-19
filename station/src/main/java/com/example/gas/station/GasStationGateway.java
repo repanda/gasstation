@@ -2,6 +2,7 @@ package com.example.gas.station;
 
 import com.example.gas.station.pricing.Pricing;
 import com.example.gas.station.pricing.PricingRepository;
+import com.example.gas.station.util.CostumerRequestStore;
 import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasStation;
 import net.bigpoint.assessment.gasstation.GasType;
@@ -15,11 +16,15 @@ public class GasStationGateway implements GasStation {
     private final PumpRepository pumpRepository;
     private final PricingRepository pricingRepository;
     private final TransactionRepository transactionRepository;
+    private final CostumerRequestStore costumerRequestStore;
+    private final PumpService pumpService;
 
     public GasStationGateway() {
         pumpRepository = new PumpRepository();
         pricingRepository = new PricingRepository();
         transactionRepository = new TransactionRepository();
+        pumpService = new PumpService(transactionRepository, pumpRepository);
+        costumerRequestStore = new CostumerRequestStore(pumpService);
     }
 
     @Override
@@ -35,8 +40,9 @@ public class GasStationGateway implements GasStation {
     @Override
     public double buyGas(GasType type, double amountInLiters, double maxPricePerLiter) throws NotEnoughGasException, GasTooExpensiveException {
         double gasPrice = pricingRepository.findBy(type);
-        return new PumpAggregate(transactionRepository, pumpRepository)
-                .buyGas(type, amountInLiters, maxPricePerLiter, gasPrice);
+        CustomerRequest request = pumpService.buyGas(type, amountInLiters, maxPricePerLiter, gasPrice);
+        costumerRequestStore.publishRequest(request);
+        return request.amountInLiters() * request.gasPrice();
     }
 
     @Override

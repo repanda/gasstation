@@ -8,19 +8,19 @@ import org.slf4j.LoggerFactory;
 
 import static com.example.gas.station.Transaction.Status.*;
 
-public class PumpAggregate {
+public class PumpService {
 
-    private Logger logger = LoggerFactory.getLogger(PumpAggregate.class);
+    private Logger logger = LoggerFactory.getLogger(PumpService.class);
 
     private final TransactionRepository transactionRepository;
     private final PumpRepository pumpRepository;
 
-    public PumpAggregate(TransactionRepository transactionRepository, PumpRepository pumpRepository) {
+    public PumpService(TransactionRepository transactionRepository, PumpRepository pumpRepository) {
         this.transactionRepository = transactionRepository;
         this.pumpRepository = pumpRepository;
     }
 
-    double buyGas(GasType type, double amountInLiters, double maxPricePerLiter, double gasPrice) throws GasTooExpensiveException, NotEnoughGasException {
+    CustomerRequest buyGas(GasType type, double amountInLiters, double maxPricePerLiter, double gasPrice) throws GasTooExpensiveException, NotEnoughGasException {
         if (gasPrice > maxPricePerLiter) {
             transactionRepository.add(new Transaction(CANCELLED_TOO_EXPENSIVE));
             throw new GasTooExpensiveException();
@@ -36,12 +36,23 @@ public class PumpAggregate {
             throw new NotEnoughGasException();
         }
 
-        pump.getGasPump().pumpGas(amountInLiters);
-        logger.info("remaining gas amount after pumping:" + pump.getGasPump().getRemainingAmount());
-
-        pumpRepository.update(pump);
-        transactionRepository.add(new Transaction(SUCCESSFUL));
-        return amountInLiters * maxPricePerLiter;
+        return new CustomerRequest(amountInLiters, gasPrice);
     }
 
+    public void applyCostumerTransaction(CustomerRequest request) {
+        logger.info("request = " + request);
+
+        Pump pump = pumpRepository.findByType(GasType.DIESEL);
+        double remainingAmount = pump.getGasPump().getRemainingAmount();
+        logger.info("remaining gas amount before pumping:" + remainingAmount);
+        if (remainingAmount < request.amountInLiters()) {
+            transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
+            return;
+        }
+
+        pump.getGasPump().pumpGas(request.amountInLiters());
+        logger.info("remaining gas amount after pumping:" + pump.getGasPump().getRemainingAmount());
+        pumpRepository.update(pump);
+        transactionRepository.add(new Transaction(SUCCESSFUL));
+    }
 }
