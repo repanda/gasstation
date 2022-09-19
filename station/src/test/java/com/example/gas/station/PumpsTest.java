@@ -59,10 +59,14 @@ public class PumpsTest {
 
                 () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
                 () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
-                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5)
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
+
+                () -> gasStationGateway.buyGas(GasType.REGULAR, 30, 5),
+                () -> gasStationGateway.buyGas(GasType.REGULAR, 30, 5),
+                () -> gasStationGateway.buyGas(GasType.REGULAR, 30, 5)
         );
 
-        assertThat(gasStationGateway.getNumberOfSales()).isEqualTo(5);
-        assertThat(gasStationGateway.getNumberOfCancellationsNoGas()).isEqualTo(2);
+        assertThat(gasStationGateway.getNumberOfSales()).isEqualTo(6);
+        assertThat(gasStationGateway.getNumberOfCancellationsNoGas()).isEqualTo(4);
     }
 }

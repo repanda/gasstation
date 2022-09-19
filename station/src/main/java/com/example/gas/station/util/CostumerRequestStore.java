@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class CostumerRequestStore {
 
@@ -27,17 +26,21 @@ public class CostumerRequestStore {
 
     private void initThread() {
         Thread dispatcherDiesel = new Thread(
-                new GasDispatcher(this.dieselPendingRequests, (request) -> pumpService.applyCostumerTransaction(request))
+                new GasDispatcher(this.dieselPendingRequests, pumpService::applyCostumerTransaction)
         );
-
         Thread dispatcherSuper = new Thread(
-                new GasDispatcher(this.superPendingRequests, (request) -> pumpService.applyCostumerTransaction(request))
+                new GasDispatcher(this.superPendingRequests, pumpService::applyCostumerTransaction)
+        );
+        Thread dispatcherRegular = new Thread(
+                new GasDispatcher(this.regularPendingRequests, pumpService::applyCostumerTransaction)
         );
 
         dispatcherDiesel.setName("dispatcherDiesel");
         dispatcherDiesel.start();
         dispatcherSuper.setName("dispatcherSuper");
         dispatcherSuper.start();
+        dispatcherRegular.setName("dispatcherRegular");
+        dispatcherRegular.start();
     }
 
 
@@ -60,11 +63,11 @@ class GasDispatcher implements Runnable {
 
     ConcurrentLinkedQueue<CustomerRequest> queue;
 
-    Consumer<CustomerRequest> action;
+    Consumer<CustomerRequest> requestConsumer;
 
-    GasDispatcher(ConcurrentLinkedQueue<CustomerRequest> queue, Consumer<CustomerRequest> action) {
+    GasDispatcher(ConcurrentLinkedQueue<CustomerRequest> queue, Consumer<CustomerRequest> requestConsumer) {
         this.queue = queue;
-        this.action = action;
+        this.requestConsumer = requestConsumer;
     }
 
     public void run() {
@@ -72,7 +75,7 @@ class GasDispatcher implements Runnable {
             try {
                 CustomerRequest request = queue.poll();
                 if (request != null) {
-                    action.accept(request);
+                    requestConsumer.accept(request);
                 }
 
             } catch (Exception e) {

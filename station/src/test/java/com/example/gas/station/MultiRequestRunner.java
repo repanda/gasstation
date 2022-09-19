@@ -19,7 +19,7 @@ public class MultiRequestRunner {
         List<Callable<Double>> futureList = Arrays.stream(callables).toList();
 
         ExecutorService service = Executors.newFixedThreadPool(4);
-        logger.info("Start 4 threads at the same time");
+        logger.info("Start 4 thread pool at the same time");
         try {
             service.invokeAll(futureList); // wait for all threads to complete
         } catch (Exception err) {
