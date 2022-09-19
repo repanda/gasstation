@@ -31,4 +31,11 @@ public class TransactionRepository {
                 .filter(transaction -> status.equals(transaction.status()))
                 .count();
     }
+
+    public double calculateRevenue() {
+        return transactions.values().stream()
+                .filter(transaction -> SUCCESSFUL.equals(transaction.status()))
+                .mapToDouble(Transaction::totalAmount)
+                .sum();
+    }
 }

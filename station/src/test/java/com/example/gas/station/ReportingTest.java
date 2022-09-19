@@ -4,10 +4,11 @@ import net.bigpoint.assessment.gasstation.GasPump;
 import net.bigpoint.assessment.gasstation.GasType;
 import net.bigpoint.assessment.gasstation.exceptions.GasTooExpensiveException;
 import net.bigpoint.assessment.gasstation.exceptions.NotEnoughGasException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static com.example.gas.station.PricingTest.DIESEL_PRICE;
-import static com.example.gas.station.PumpsTest.INITIAL_GAS_CAPACITY;
+import static com.example.gas.station.PumpsTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -63,4 +64,31 @@ public class ReportingTest {
         int numberOfSuccessfulSales = gasStationGateway.getNumberOfSales();
         assertThat(numberOfSuccessfulSales).isEqualTo(1);
     }
+
+    @Test
+    public void calculate_revenue() {
+        gasStationGateway.addGasPump(new GasPump(GasType.DIESEL, 10));
+        gasStationGateway.setPrice(GasType.DIESEL, DIESEL_PRICE);
+        gasStationGateway.addGasPump(new GasPump(GasType.SUPER, 20));
+        gasStationGateway.setPrice(GasType.SUPER, SUPER_PRICE);
+        gasStationGateway.addGasPump(new GasPump(GasType.REGULAR, 15));
+        gasStationGateway.setPrice(GasType.REGULAR, REGULAR_PRICE);
+
+
+        new MultiRequestRunner().run(() -> gasStationGateway.buyGas(GasType.DIESEL, 20, 5),
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 10, 5),
+                () -> gasStationGateway.buyGas(GasType.DIESEL, 10, 5), // cancelled
+
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
+                () -> gasStationGateway.buyGas(GasType.SUPER, 10, 5),
+
+                () -> gasStationGateway.buyGas(GasType.REGULAR, 10, 5),
+                () -> gasStationGateway.buyGas(GasType.REGULAR, 10, 5) // cancelled
+        );
+
+        double revenue = gasStationGateway.getRevenue();
+        Assertions.assertThat(revenue).
+                isEqualTo(82);
+    }
+
 }

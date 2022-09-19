@@ -13,8 +13,8 @@ import static com.example.gas.station.PricingTest.DIESEL_PRICE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PumpsTest {
-    private static final double SUPER_PRICE = 2;
-    private static final double REGULAR_PRICE = 2;
+    public static final double SUPER_PRICE = 2;
+    public static final double REGULAR_PRICE = 2;
 
     Logger logger = LoggerFactory.getLogger(PumpsTest.class);
 

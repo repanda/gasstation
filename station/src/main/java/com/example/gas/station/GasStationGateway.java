@@ -47,7 +47,7 @@ public class GasStationGateway implements GasStation {
 
     @Override
     public double getRevenue() {
-        return 0;
+        return transactionRepository.calculateRevenue();
     }
 
     @Override

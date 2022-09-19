@@ -22,7 +22,7 @@ public class PumpService {
 
     CustomerRequest buyGas(GasType type, double amountInLiters, double maxPricePerLiter, double gasPrice) throws GasTooExpensiveException, NotEnoughGasException {
         if (gasPrice > maxPricePerLiter) {
-            transactionRepository.add(new Transaction(CANCELLED_TOO_EXPENSIVE));
+            transactionRepository.add(new Transaction(CANCELLED_TOO_EXPENSIVE, amountInLiters * gasPrice));
             throw new GasTooExpensiveException();
         }
         Pump pump = pumpRepository.findByType(type);
@@ -32,7 +32,7 @@ public class PumpService {
         double remainingAmount = pump.getGasPump().getRemainingAmount();
         logger.info("remaining gas amount before pumping:" + remainingAmount);
         if (remainingAmount < amountInLiters) {
-            transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
+            transactionRepository.add(new Transaction(CANCELLED_NO_GAS, amountInLiters * gasPrice));
             throw new NotEnoughGasException();
         }
 
@@ -47,13 +47,13 @@ public class PumpService {
         double remainingAmount = pump.getGasPump().getRemainingAmount();
         logger.info("remaining gas amount before pumping:" + remainingAmount);
         if (remainingAmount < request.amountInLiters()) {
-            transactionRepository.add(new Transaction(CANCELLED_NO_GAS));
+            transactionRepository.add(new Transaction(CANCELLED_NO_GAS, request.amountInLiters() * request.gasPrice()));
             return;
         }
 
         pump.getGasPump().pumpGas(request.amountInLiters());
         logger.info("remaining gas amount after pumping:" + pump.getGasPump().getRemainingAmount());
         pumpRepository.update(pump);
-        transactionRepository.add(new Transaction(SUCCESSFUL));
+        transactionRepository.add(new Transaction(SUCCESSFUL, request.amountInLiters() * request.gasPrice()));
     }
 }
